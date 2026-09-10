@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XAU AI Intelligence | Sertifikat Analisa Pasar</title>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DCVKX2J5CM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-DCVKX2J5CM');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#EDE6D6;
+    --paper-2:#F6F2E6;
+    --ink:#202B23;
+    --ink-soft:#4B5346;
+    --rule:#C9BEA1;
+    --rust:#8C3F2A;
+    --rust-bright:#B1583C;
+    --emerald:#2E5E45;
+    --brick:#8E3B3B;
+    --foil:#9C7A31;
+    --radius-sm:6px;
+    --font-display:'Fraunces',serif;
+    --font-body:'Work Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    background:var(--paper);
+    color:var(--ink);
+    overflow-x:hidden;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  a{color:inherit;}
+
+  ::selection{ background:var(--rust); color:var(--paper-2); }
+
+  #bgCanvas{
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    opacity:.9;
+  }
+
+  .lang{
+    position:fixed;
+    right:14px;
+    top:14px;
+    z-index:1000;
+    display:flex;
+    border:1px solid var(--rule);
+    border-radius:var(--radius-sm);
+    overflow:hidden;
+    background:var(--paper-2);
+  }
+  .lang button{
+    background:transparent;
+    border:none;
+    border-right:1px solid var(--rule);
+    color:var(--ink-soft);
+    padding:7px 11px;
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:12px;
+  }
+  .lang button:last-child{ border-right:none; }
+  .lang button:hover{ color:var(--ink); }
+  .lang button.active{ background:var(--ink); color:var(--paper-2); }
+
+  .frame{
+    max-width:620px;
+    margin:auto;
+    padding:34px 24px 48px;
+    position:relative;
+  }
+  .frame::before, .frame::after{
+    content:"";
+    position:fixed;
+    width:26px; height:26px;
+    border-top:1.5px solid var(--rule);
+    border-left:1.5px solid var(--rule);
+    top:14px; left:14px;
+    pointer-events:none;
+  }
+  .frame::after{
+    top:auto; left:auto;
+    bottom:14px; right:14px;
+    border-top:none; border-left:none;
+    border-bottom:1.5px solid var(--rule);
+    border-right:1.5px solid var(--rule);
+  }
+
+  .hero{ text-align:center; padding-top:30px; }
+
+  .seal{
+    width:88px; height:88px;
+    margin:0 auto;
+    animation:sealDrop .9s cubic-bezier(.2,.9,.3,1.3);
+  }
+  @keyframes sealDrop{
+    0%{ transform:translateY(-40px) scale(.4) rotate(-18deg); opacity:0; }
+    70%{ transform:translateY(4px) scale(1.05) rotate(3deg); opacity:1; }
+    100%{ transform:translateY(0) scale(1) rotate(0deg); }
+  }
+
+  .kicker{
+    margin-top:16px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+  .kicker .dot{
+    width:6px; height:6px;
+    background:var(--rust);
+    display:inline-block;
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:32px;
+    margin:16px 0 0;
+    font-weight:600;
+    line-height:1.3;
+    letter-spacing:-.2px;
+  }
+
+  .rule-under{
+    width:64px; height:2px;
+    background:var(--rust);
+    margin:18px auto 0;
+  }
+
+  .subtitle{
+    margin-top:16px;
+    font-size:15px;
+    line-height:1.75;
+    color:var(--ink-soft);
+    max-width:440px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .ticker-wrap{
+    margin-top:26px;
+    border-top:1px solid var(--rule);
+    border-bottom:1px solid var(--rule);
+    background:var(--paper-2);
+    overflow:hidden;
+    padding:11px 0;
+  }
+  .ticker-track{
+    display:flex;
+    width:max-content;
+    gap:0;
+    animation:scrollTicker 24s linear infinite;
+  }
+  .ticker-track:hover{ animation-play-state:paused; }
+  @keyframes scrollTicker{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+  .tick{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    padding:0 18px;
+    border-right:1px solid var(--rule);
+  }
+  .tick.buy{ color:var(--emerald); }
+  .tick.sell{ color:var(--brick); }
+  .tick b{ color:var(--ink); font-weight:600; margin-right:1px; }
+
+  .section{
+    margin-top:46px;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:12px;
+    margin-bottom:22px;
+  }
+  .section-head .mark{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--rust);
+    border:1px solid var(--rust);
+    border-radius:var(--radius-sm);
+    padding:2px 6px;
+  }
+  .section-head h2{
+    font-family:var(--font-display);
+    font-size:19px;
+    margin:0;
+    font-weight:600;
+  }
+  .section-text{
+    font-size:13.5px;
+    line-height:1.75;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+  }
+
+  .feature-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px 20px;
+  }
+  .feature{
+    padding:0;
+  }
+  .feature .monogram{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--rust);
+    border:1px solid var(--rust);
+    width:28px; height:28px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:12px;
+  }
+  .feature b{ display:block; font-size:14.5px; margin-bottom:6px; font-family:var(--font-display); font-weight:600; }
+  .feature .desc{ font-size:13.5px; line-height:1.7; color:var(--ink-soft); }
+
+  @media (max-width:480px){
+    .feature-grid{ grid-template-columns:1fr; gap:20px; }
+  }
+
+  .steps{
+    border-left:2px solid var(--rule);
+    padding-left:20px;
+    margin-left:8px;
+  }
+  .step{ position:relative; margin-bottom:20px; }
+  .step:last-child{ margin-bottom:0; }
+  .step .num{
+    position:absolute;
+    left:-29px;
+    top:1px;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--paper);
+    border:1.5px solid var(--rust);
+    color:var(--rust);
+    font-family:var(--font-mono);
+    font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .step b{ display:block; font-family:var(--font-display); font-size:14.5px; margin-bottom:3px; font-weight:600; }
+  .step .desc{ font-size:13px; color:var(--ink-soft); line-height:1.65; }
+
+  .checklist{ list-style:none; padding:0; margin:0 0 20px; }
+  .checklist li{
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:5px 0 5px 20px;
+    position:relative;
+    line-height:1.5;
+  }
+  .checklist li::before{
+    content:"—";
+    position:absolute;
+    left:0;
+    color:var(--rust);
+  }
+
+  .ledger{
+    border-top:1px solid var(--ink);
+  }
+  .plan-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:22px 6px;
+    border-bottom:1px solid var(--rule);
+    position:relative;
+  }
+  .plan-row.hemat{ background:var(--paper-2); }
+  .plan-ribbon{
+    position:absolute;
+    top:6px;
+    right:4px;
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    letter-spacing:.3px;
+    color:var(--rust);
+    border:1px solid var(--rust);
+    border-radius:var(--radius-sm);
+    padding:2px 7px;
+  }
+  .plan-left{ flex:1 1 auto; min-width:0; }
+  .plan-duration{ font-family:var(--font-display); font-size:16px; font-weight:600; margin:0 0 3px; }
+  .plan-unit{ font-size:11.5px; color:var(--ink-soft); font-family:var(--font-mono); }
+  .plan-right{ flex:0 0 auto; text-align:right; }
+  .plan-price{
+    font-family:var(--font-mono);
+    font-size:17px;
+    font-weight:700;
+    color:var(--ink);
+    white-space:nowrap;
+    display:block;
+    margin-bottom:8px;
+  }
+  .plan-cta{
+    display:inline-block;
+    padding:9px 16px;
+    border-radius:var(--radius-sm);
+    font-weight:600;
+    font-size:12.5px;
+    text-decoration:none;
+    background:var(--ink);
+    color:var(--paper-2);
+    white-space:nowrap;
+  }
+  .plan-row.hemat .plan-cta{ background:var(--rust); }
+  .plan-cta:hover{ background:var(--rust-bright); }
+
+  .btn{
+    display:block;
+    margin-top:6px;
+    padding:15px;
+    border-radius:var(--radius-sm);
+    text-align:center;
+    text-decoration:none;
+    background:var(--ink);
+    color:var(--paper-2);
+    font-weight:600;
+    font-size:14px;
+    border:1px solid var(--ink);
+  }
+  .btn:hover{ background:var(--rust); border-color:var(--rust); }
+
+  .req{ display:flex; gap:10px; margin-bottom:11px; font-size:13.5px; color:var(--ink-soft); }
+  .req:last-child{ margin-bottom:0; }
+  .req .check{ color:var(--emerald); font-family:var(--font-mono); }
+
+  .disclaimer{
+    margin-top:30px;
+    padding-top:16px;
+    border-top:1px solid var(--rule);
+    font-size:11.5px;
+    line-height:1.7;
+    color:var(--ink-soft);
+  }
+  .disclaimer strong{ color:var(--ink); font-family:var(--font-display); }
+
+  .footer{
+    margin-top:24px;
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    font-family:var(--font-mono);
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<div class="lang" id="langToggle">
+  <button data-lang="id" class="active">ID</button>
+  <button data-lang="en">EN</button>
+  <button data-lang="zh">中文</button>
+</div>
+
+<div class="frame">
+
+  <section class="hero">
+    <div class="seal">
+      <svg viewBox="0 0 100 100" width="100%" height="100%">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="var(--rust)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="var(--ink)" stroke-width="1"/>
+        <text x="50" y="46" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="var(--ink)" font-weight="600">XAU</text>
+        <text x="50" y="60" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="var(--rust)">AI · 999.9</text>
+      </svg>
+    </div>
+    <div class="kicker"><span class="dot"></span><span id="kickerText">Analisa pasar otomatis, real-time</span></div>
+    <h1 id="heroTitle">Sinyal XAUUSD, dibaca oleh AI, dikirim ke Telegram Anda</h1>
+    <div class="rule-under"></div>
+    <p class="subtitle" id="heroSubtitle">Asisten AI yang memantau pergerakan XAUUSD sepanjang hari dan mengirim hasil bacaannya langsung ke Telegram pribadi Anda.</p>
+
+    <div class="ticker-wrap">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </section>
+
+  <div class="section">
+    <div class="section-head"><span class="mark">A</span><h2 id="featuresTitle">Yang AI ini kerjakan</h2></div>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="monogram">MI</div>
+        <b id="feat1Title">Kecerdasan Pasar</b>
+        <div class="desc" id="feat1Desc">Membaca XAUUSD lewat Smart Money Concept & struktur pasar.</div>
+      </div>
+      <div class="feature">
+        <div class="monogram">AN</div>
+        <b id="feat2Title">Analisa, Bukan Angka Kosong</b>
+        <div class="desc" id="feat2Desc">Setiap sinyal disertai penjelasan arah market secara singkat.</div>
+      </div>
+      <div class="feature">
+        <div class="monogram">RT</div>
+        <b id="feat3Title">Pengiriman Seketika</b>
+        <div class="desc" id="feat3Desc">Update market otomatis, langsung ke Telegram Anda.</div>
+      </div>
+      <div class="feature">
+        <div class="monogram">RM</div>
+        <b id="feat4Title">Manajemen Risiko</b>
+        <div class="desc" id="feat4Desc">Setiap rekomendasi disertai pendekatan manajemen risiko.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span class="mark">B</span><h2 id="howTitle">Cara kerja</h2></div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <b id="step1Title">Aktifkan akses</b>
+        <div class="desc" id="step1Desc">Pilih salah satu paket di bawah sesuai kebutuhan Anda.</div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <b id="step2Title">AI membaca pasar</b>
+        <div class="desc" id="step2Desc">Analisa XAUUSD berjalan lewat Smart Money Concept, likuiditas, dan struktur pasar.</div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <b id="step3Title">Sinyal terkirim</b>
+        <div class="desc" id="step3Desc">Informasi entry dikirim real-time ke Telegram Anda.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span class="mark">C</span><h2 id="pricingTitle">Aktifkan akses Anda</h2></div>
+    <ul class="checklist">
+      <li id="planFeatP1">Sinyal AI XAUUSD real-time setiap jam</li>
+      <li id="planFeatP2">Dikirim langsung ke DM Telegram pribadi Anda</li>
+      <li id="planFeatP3">Analisa singkat di setiap sinyal</li>
+      <li id="planFeatP4">Tanpa topik lain, murni fokus XAUUSD</li>
+    </ul>
+    <div class="ledger" id="plansGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span class="mark">D</span><h2 id="portfolioTitle">Rekam jejak sinyal</h2></div>
+    <p class="section-text" id="portfolioText">Semua hasil sinyal kami dicatat secara transparan dan diperbarui setiap hari.</p>
+    <a class="btn" id="portfolioBtn" href="https://dashboardpanelporto-production.up.railway.app/" target="_blank" onclick="gtag('event','backtest_click');">
+      Lihat portofolio sinyal harian →
+    </a>
+  </div>
+
+  <div class="section">
+    <div class="section-head"><span class="mark">E</span><h2 id="reqTitle">Syarat akses</h2></div>
+    <div class="req"><span class="check">＋</span> <span id="req1">Memiliki akun Telegram aktif.</span></div>
+    <div class="req"><span class="check">＋</span> <span id="req2">Bergabung melalui sistem registrasi.</span></div>
+    <div class="req"><span class="check">＋</span> <span id="req3">Menggunakan informasi sebagai referensi analisa trading.</span></div>
+  </div>
+
+  <div class="disclaimer">
+    <strong id="disclaimerTitle">Risk Disclaimer</strong><br><br>
+    <span id="disclaimerText">Trading Forex dan Futures memiliki risiko tinggi. Performa sebelumnya tidak menjamin hasil di masa depan.
+    AI System menyediakan informasi analisa market dan bukan merupakan jaminan profit.
+    Trader bertanggung jawab atas keputusan trading masing-masing.</span>
+  </div>
+
+  <div class="footer">
+    XAU AI INTELLIGENCE © 2026 — <span id="footerText">Teknologi Analisa Pasar AI</span>
+  </div>
+
+</div>
+
+<script>
+let preferredLanguage = "id";
+
+const BOT_BASE = "https://t.me/QillinBL_bot";
+
+const PLANS = [
+  { id:"trial4", code:"TRIAL4", price:34000,  days:4,    months:null },
+  { id:"m1",     code:"1BLN",   price:149000, days:null, months:1, hemat:true }
+];
+
+function formatRupiah(n){
+  return "Rp" + n.toLocaleString("id-ID");
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const referral = urlParams.get("ref");
+
+function buildLink(planCode){
+  const startPayload = referral && referral.trim() !== ""
+    ? `JOIN_${planCode}_ref_${referral.trim()}`
+    : `JOIN_${planCode}`;
+  return `${BOT_BASE}?start=${encodeURIComponent(startPayload)}`;
+}
+
+function durationLabel(plan, lang){
+  const t = i18n.durationUnit[lang];
+  if(plan.days) return `${plan.days} ${t.day}`;
+  return `1 ${t.month}`;
+}
+
+function unitLabel(plan, lang){
+  const suf = i18n.perUnit[lang];
+  if(plan.days){
+    return "≈ " + formatRupiah(Math.round(plan.price / plan.days)) + suf.day;
+  }
+  return i18n.fullAccess[lang];
+}
+
+function renderPlans(lang){
+  const grid = document.getElementById("plansGrid");
+  grid.innerHTML = PLANS.map(p=>{
+    const classes = ["plan-row"];
+    if(p.hemat) classes.push("hemat");
+    const ribbon = p.hemat
+      ? `<div class="plan-ribbon">${i18n.ribbonHemat[lang]}</div>`
+      : `<div class="plan-ribbon">${i18n.ribbonTrial[lang]}</div>`;
+    return `
+      <div class="${classes.join(' ')}">
+        ${ribbon}
+        <div class="plan-left">
+          <div class="plan-duration">${durationLabel(p, lang)}</div>
+          <div class="plan-unit">${unitLabel(p, lang)}</div>
+        </div>
+        <div class="plan-right">
+          <span class="plan-price">${formatRupiah(p.price)}</span>
+          <a class="plan-cta" href="${buildLink(p.code)}" target="_blank" data-plan="${p.code}">${i18n.ctaShort[lang]}</a>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  grid.querySelectorAll(".plan-cta").forEach(a=>{
+    a.addEventListener("click", ()=> gtag('event','telegram_join_click', { plan: a.dataset.plan }));
+  });
+}
+
+const tickerData = [
+  {dir:"buy",  label:"XAUUSD", price:"2378.40", note:"BUY · SMC breakout"},
+  {dir:"sell", label:"XAUUSD", price:"2381.10", note:"SELL · liquidity grab"},
+  {dir:"buy",  label:"XAUUSD", price:"2374.85", note:"BUY · structure shift"},
+  {dir:"sell", label:"XAUUSD", price:"2386.20", note:"SELL · resistance rejection"},
+  {dir:"buy",  label:"XAUUSD", price:"2369.90", note:"BUY · demand zone"},
+];
+function renderTicker(){
+  const track = document.getElementById("tickerTrack");
+  const items = [...tickerData, ...tickerData];
+  track.innerHTML = items.map(t => `
+    <div class="tick ${t.dir}">
+      <b>${t.label}</b> ${t.price} ${t.dir === "buy" ? "▲" : "▼"} <span>${t.note}</span>
+    </div>
+  `).join("");
+}
+renderTicker();
+
+const heroText = {
+  id: {
+    title: "Sinyal XAUUSD, dibaca oleh AI, dikirim ke Telegram Anda",
+    subtitle: "Asisten AI yang memantau pergerakan XAUUSD sepanjang hari dan mengirim hasil bacaannya langsung ke Telegram pribadi Anda.",
+    kicker: "Analisa pasar otomatis, real-time"
+  },
+  en: {
+    title: "XAUUSD signals, read by AI, delivered to your Telegram",
+    subtitle: "An AI assistant that watches XAUUSD around the clock and sends its readings straight to your personal Telegram.",
+    kicker: "Automated market analysis, real-time"
+  },
+  zh: {
+    title: "XAUUSD 信号，由 AI 解读，发送到您的 Telegram",
+    subtitle: "AI 助手全天监测 XAUUSD 走势，并将分析结果直接发送到您的 Telegram。",
+    kicker: "自动市场分析，实时更新"
+  }
+};
+
+const i18n = {
+  featuresTitle:   { id: "Yang AI ini kerjakan", en: "What this AI does", zh: "这个 AI 能做什么" },
+  feat1Title:      { id: "Kecerdasan Pasar", en: "Market Intelligence", zh: "市场智能" },
+  feat1Desc:       { id: "Membaca XAUUSD lewat Smart Money Concept & struktur pasar.", en: "Reads XAUUSD through Smart Money Concept & market structure.", zh: "通过聪明钱理论与市场结构解读 XAUUSD。" },
+  feat2Title:      { id: "Analisa, Bukan Angka Kosong", en: "Analysis, Not Bare Numbers", zh: "分析，而非空洞数字" },
+  feat2Desc:       { id: "Setiap sinyal disertai penjelasan arah market secara singkat.", en: "Every signal comes with a short explanation of market direction.", zh: "每个信号都附有简短的市场方向说明。" },
+  feat3Title:      { id: "Pengiriman Seketika", en: "Instant Delivery", zh: "即时推送" },
+  feat3Desc:       { id: "Update market otomatis, langsung ke Telegram Anda.", en: "Automatic market updates, straight to your Telegram.", zh: "自动市场更新，直接发送到您的 Telegram。" },
+  feat4Title:      { id: "Manajemen Risiko", en: "Risk Management", zh: "风险管理" },
+  feat4Desc:       { id: "Setiap rekomendasi disertai pendekatan manajemen risiko.", en: "Every recommendation comes with a risk management approach.", zh: "每项建议都附带风险管理方案。" },
+
+  howTitle:        { id: "Cara kerja", en: "How it works", zh: "使用方法" },
+  step1Title:      { id: "Aktifkan akses", en: "Activate access", zh: "激活访问权限" },
+  step1Desc:       { id: "Pilih salah satu paket di bawah sesuai kebutuhan Anda.", en: "Choose one of the plans below to fit your needs.", zh: "选择下方适合您需求的套餐。" },
+  step2Title:      { id: "AI membaca pasar", en: "AI reads the market", zh: "AI 解读市场" },
+  step2Desc:       { id: "Analisa XAUUSD berjalan lewat Smart Money Concept, likuiditas, dan struktur pasar.", en: "XAUUSD is analyzed through Smart Money Concept, liquidity, and market structure.", zh: "通过聪明钱理论、流动性和市场结构分析 XAUUSD。" },
+  step3Title:      { id: "Sinyal terkirim", en: "Signal delivered", zh: "信号送达" },
+  step3Desc:       { id: "Informasi entry dikirim real-time ke Telegram Anda.", en: "Entry information is sent to your Telegram in real time.", zh: "入场信息实时发送到您的 Telegram。" },
+
+  pricingTitle:    { id: "Aktifkan akses Anda", en: "Activate your access", zh: "激活您的访问权限" },
+  planFeatP1:      { id: "Sinyal AI XAUUSD real-time setiap jam", en: "Real-time AI XAUUSD signals every hour", zh: "每小时实时 AI XAUUSD 信号" },
+  planFeatP2:      { id: "Dikirim langsung ke DM Telegram pribadi Anda", en: "Delivered straight to your private Telegram DM", zh: "直接发送到您的 Telegram 私信" },
+  planFeatP3:      { id: "Analisa singkat di setiap sinyal", en: "Brief analysis included with every signal", zh: "每个信号附带简要分析" },
+  planFeatP4:      { id: "Tanpa topik lain, murni fokus XAUUSD", en: "No other topics — pure XAUUSD focus", zh: "无其他话题，专注 XAUUSD" },
+
+  ribbonTrial:     { id: "Coba Dulu", en: "Try First", zh: "先体验" },
+  ribbonHemat:     { id: "Lebih Hemat", en: "Best Value", zh: "最超值" },
+  ctaShort:        { id: "Aktifkan", en: "Activate", zh: "激活" },
+  fullAccess:      { id: "Akses penuh 1 bulan", en: "Full 1-month access", zh: "1 个月完整访问" },
+  durationUnit:    { id: { day:"Hari", month:"Bulan" }, en: { day:"Days", month:"Month" }, zh: { day:"天", month:"个月" } },
+  perUnit:         { id: { day:"/hari" }, en: { day:"/day" }, zh: { day:"/天" } },
+
+  portfolioTitle:  { id: "Rekam jejak sinyal", en: "Signal track record", zh: "信号历史记录" },
+  portfolioText:   { id: "Semua hasil sinyal kami dicatat secara transparan dan diperbarui setiap hari.", en: "All our signal results are recorded transparently and updated daily.", zh: "我们所有的信号结果都透明记录并每日更新。" },
+  portfolioBtn:    { id: "Lihat portofolio sinyal harian →", en: "See daily signal portfolio →", zh: "查看每日信号组合 →" },
+
+  reqTitle:        { id: "Syarat akses", en: "Access requirements", zh: "访问要求" },
+  req1:            { id: "Memiliki akun Telegram aktif.", en: "Have an active Telegram account.", zh: "拥有一个有效的 Telegram 账户。" },
+  req2:            { id: "Bergabung melalui sistem registrasi.", en: "Join through the registration system.", zh: "通过注册系统加入。" },
+  req3:            { id: "Menggunakan informasi sebagai referensi analisa trading.", en: "Use the information as a trading analysis reference.", zh: "将信息用作交易分析参考。" },
+
+  disclaimerTitle: { id: "Risk Disclaimer", en: "Risk Disclaimer", zh: "风险提示" },
+  disclaimerText:  { id: "Trading Forex dan Futures memiliki risiko tinggi. Performa sebelumnya tidak menjamin hasil di masa depan. AI System menyediakan informasi analisa market dan bukan merupakan jaminan profit. Trader bertanggung jawab atas keputusan trading masing-masing.",
+                     en: "Forex and Futures trading carries high risk. Past performance does not guarantee future results. The AI System provides market analysis information and is not a guarantee of profit. Traders are responsible for their own trading decisions.",
+                     zh: "外汇和期货交易风险较高。过往表现不代表未来结果。AI 系统提供市场分析信息，并不保证盈利。交易者需对自己的交易决策负责。" },
+
+  footerText:      { id: "Teknologi Analisa Pasar AI", en: "AI Market Analysis Technology", zh: "AI 市场分析技术" }
+};
+
+function setLang(lang){
+  preferredLanguage = lang;
+
+  const hero = heroText[lang];
+  document.getElementById("heroTitle").textContent = hero.title;
+  document.getElementById("heroSubtitle").textContent = hero.subtitle;
+  document.getElementById("kickerText").textContent = hero.kicker;
+
+  Object.keys(i18n).forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const val = i18n[id][lang];
+    if(typeof val === "string") el.textContent = val;
+  });
+
+  document.querySelectorAll("#langToggle button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.lang === lang);
+  });
+
+  renderPlans(lang);
+}
+
+document.getElementById("langToggle").addEventListener("click", (e)=>{
+  const btn = e.target.closest("button");
+  if(!btn) return;
+  setLang(btn.dataset.lang);
+});
+
+setLang(preferredLanguage);
+
+/* =====================
+   Background: faint ledger grid + one slow-turning seal ring
+   watermark + a thin drifting chart line. Restrained on purpose.
+   ===================== */
+(function(){
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let w, h;
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  let ringAngle = 0;
+
+  const CHART_SPACING = 46;
+  const chartValues = Array.from({length: 40}, () => Math.random());
+  let chartOffset = 0;
+
+  function draw(){
+    ctx.clearRect(0, 0, w, h);
+
+    ringAngle += 0.0009;
+    const rx = w - 140, ry = 150, rr = 130;
+    ctx.save();
+    ctx.translate(rx, ry);
+    ctx.rotate(ringAngle);
+    ctx.strokeStyle = "rgba(156,122,49,0.10)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(0, 0, rr, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, rr * 0.78, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+
+    chartOffset += 0.4;
+    const baseY = 90;
+    const amp = 46;
+    ctx.strokeStyle = "rgba(46,94,69,0.10)";
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    let started = false;
+    for(let i = -1; i < Math.ceil(w / CHART_SPACING) + 1; i++){
+      const idx = ((i + Math.floor(chartOffset / CHART_SPACING)) % chartValues.length + chartValues.length) % chartValues.length;
+      const x = i * CHART_SPACING - (chartOffset % CHART_SPACING);
+      const y = baseY - chartValues[idx] * amp;
+      if(!started){ ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+    }
+    ctx.stroke();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+</body>
+</html>
