@@ -1,0 +1,15 @@
+{
+  "name": "agent-ai-xauusd",
+  "version": "1.0.0",
+  "description": "Landing page AGENT AI FOR XAUUSD - Trading Lebih Cerdas Tanpa IB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
