@@ -197,6 +197,58 @@
   .tick.sell{ color:var(--brick); }
   .tick b{ color:var(--ink); font-weight:600; margin-right:1px; }
 
+  /* ===== Countdown block (harga naik 2x) ===== */
+  .countdown-block{
+    margin-top:30px;
+    border:1px solid var(--rust);
+    border-radius:var(--radius-sm);
+    background:var(--paper-2);
+    padding:22px 18px;
+    text-align:center;
+  }
+  .countdown-block .cd-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    color:var(--rust);
+    margin-bottom:16px;
+  }
+  .cd-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+  }
+  .cd-unit{
+    background:var(--paper);
+    border:1px solid var(--rule);
+    border-radius:var(--radius-sm);
+    padding:10px 12px;
+    min-width:54px;
+  }
+  .cd-val{
+    display:block;
+    font-family:var(--font-display);
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+    line-height:1;
+  }
+  .cd-lbl{
+    display:block;
+    font-family:var(--font-mono);
+    font-size:9.5px;
+    letter-spacing:.5px;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:5px;
+  }
+  .cd-note{
+    margin-top:16px;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+
   .section{
     margin-top:46px;
   }
@@ -319,6 +371,12 @@
   .plan-left{ flex:1 1 auto; min-width:0; }
   .plan-duration{ font-family:var(--font-display); font-size:16px; font-weight:600; margin:0 0 3px; }
   .plan-unit{ font-size:11.5px; color:var(--ink-soft); font-family:var(--font-mono); }
+  .plan-afternote{
+    font-family:var(--font-mono);
+    font-size:10.5px;
+    color:var(--rust);
+    margin-top:5px;
+  }
   .plan-right{ flex:0 0 auto; text-align:right; }
   .plan-price{
     font-family:var(--font-mono);
@@ -410,6 +468,29 @@
 
     <div class="ticker-wrap">
       <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <div class="countdown-block">
+      <div class="cd-label" id="countdownTitle">Harga Naik Dua Kali Lipat Dalam</div>
+      <div class="cd-row">
+        <div class="cd-unit">
+          <span class="cd-val" id="cdDays">5</span>
+          <span class="cd-lbl" id="cdDaysLbl">Hari</span>
+        </div>
+        <div class="cd-unit">
+          <span class="cd-val" id="cdHours">00</span>
+          <span class="cd-lbl" id="cdHoursLbl">Jam</span>
+        </div>
+        <div class="cd-unit">
+          <span class="cd-val" id="cdMinutes">00</span>
+          <span class="cd-lbl" id="cdMinutesLbl">Menit</span>
+        </div>
+        <div class="cd-unit">
+          <span class="cd-val" id="cdSeconds">00</span>
+          <span class="cd-lbl" id="cdSecondsLbl">Detik</span>
+        </div>
+      </div>
+      <p class="cd-note" id="countdownNote">Setelah waktu ini habis, harga semua paket otomatis naik dua kali lipat.</p>
     </div>
   </section>
 
@@ -504,13 +585,34 @@ let preferredLanguage = "id";
 
 const BOT_BASE = "https://t.me/QillinBL_bot";
 
+// =========================================================
+// HARGA NAIK 2x LIPAT SETELAH DEADLINE
+//
+// PRICE_DOUBLE_DEADLINE = 5 hari dari sekarang (14 Sep 2026),
+// yaitu 19 September 2026, 23:59:59 WIB.
+//
+// "price"      = harga saat ini (sebelum deadline)
+// "priceAfter" = harga setelah deadline (2x lipat), berlaku
+//                otomatis tanpa perlu ubah kode lagi.
+// =========================================================
+
+const PRICE_DOUBLE_DEADLINE = new Date(Date.UTC(2026, 8, 19, 16, 59, 59)); // 19 Sep 2026 23:59:59 WIB
+
 const PLANS = [
-  { id:"trial4", code:"TRIAL4", price:34000,  days:4,    months:null },
-  { id:"m1",     code:"1BLN",   price:149000, days:null, months:1, hemat:true }
+  { id:"trial4", code:"TRIAL4", price:34000,  priceAfter:68000,  days:4,    months:null },
+  { id:"m1",     code:"1BLN",   price:149000, priceAfter:298000, days:null, months:1, hemat:true }
 ];
+
+function activePrice(plan){
+  return Date.now() <= PRICE_DOUBLE_DEADLINE.getTime() ? plan.price : plan.priceAfter;
+}
 
 function formatRupiah(n){
   return "Rp" + n.toLocaleString("id-ID");
+}
+
+function pad(n){
+  return String(n).padStart(2, "0");
 }
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -532,7 +634,7 @@ function durationLabel(plan, lang){
 function unitLabel(plan, lang){
   const suf = i18n.perUnit[lang];
   if(plan.days){
-    return "≈ " + formatRupiah(Math.round(plan.price / plan.days)) + suf.day;
+    return "≈ " + formatRupiah(Math.round(activePrice(plan) / plan.days)) + suf.day;
   }
   return i18n.fullAccess[lang];
 }
@@ -551,9 +653,10 @@ function renderPlans(lang){
         <div class="plan-left">
           <div class="plan-duration">${durationLabel(p, lang)}</div>
           <div class="plan-unit">${unitLabel(p, lang)}</div>
+          <div class="plan-afternote" id="afternote-${p.id}"></div>
         </div>
         <div class="plan-right">
-          <span class="plan-price">${formatRupiah(p.price)}</span>
+          <span class="plan-price" id="price-${p.id}">${formatRupiah(activePrice(p))}</span>
           <a class="plan-cta" href="${buildLink(p.code)}" target="_blank" data-plan="${p.code}">${i18n.ctaShort[lang]}</a>
         </div>
       </div>
@@ -563,6 +666,8 @@ function renderPlans(lang){
   grid.querySelectorAll(".plan-cta").forEach(a=>{
     a.addEventListener("click", ()=> gtag('event','telegram_join_click', { plan: a.dataset.plan }));
   });
+
+  updateCountdownDependentText();
 }
 
 const tickerData = [
@@ -619,6 +724,14 @@ const i18n = {
   step2Desc:       { id: "Analisa XAUUSD berjalan lewat Smart Money Concept, likuiditas, dan struktur pasar.", en: "XAUUSD is analyzed through Smart Money Concept, liquidity, and market structure.", zh: "通过聪明钱理论、流动性和市场结构分析 XAUUSD。" },
   step3Title:      { id: "Sinyal terkirim", en: "Signal delivered", zh: "信号送达" },
   step3Desc:       { id: "Informasi entry dikirim real-time ke Telegram Anda.", en: "Entry information is sent to your Telegram in real time.", zh: "入场信息实时发送到您的 Telegram。" },
+
+  countdownTitle:  { id: "Harga Naik Dua Kali Lipat Dalam", en: "Price Doubles In", zh: "价格即将翻倍" },
+  cdDaysLbl:       { id: "Hari", en: "Days", zh: "天" },
+  cdHoursLbl:      { id: "Jam", en: "Hours", zh: "小时" },
+  cdMinutesLbl:    { id: "Menit", en: "Minutes", zh: "分钟" },
+  cdSecondsLbl:    { id: "Detik", en: "Seconds", zh: "秒" },
+  countdownNote:   { id: "Setelah waktu ini habis, harga semua paket otomatis naik dua kali lipat.", en: "Once this timer runs out, all plan prices automatically double.", zh: "计时结束后，所有套餐价格将自动翻倍。" },
+  afterNote:       { id: "Naik jadi ", en: "Rises to ", zh: "涨至 " },
 
   pricingTitle:    { id: "Aktifkan akses Anda", en: "Activate your access", zh: "激活您的访问权限" },
   planFeatP1:      { id: "Sinyal AI XAUUSD real-time setiap jam", en: "Real-time AI XAUUSD signals every hour", zh: "每小时实时 AI XAUUSD 信号" },
@@ -678,7 +791,54 @@ document.getElementById("langToggle").addEventListener("click", (e)=>{
   setLang(btn.dataset.lang);
 });
 
+/* =====================
+   COUNTDOWN: harga naik 2x lipat
+   ===================== */
+function updateCountdownDependentText(){
+  const now = Date.now();
+  let diff = PRICE_DOUBLE_DEADLINE.getTime() - now;
+  if(diff < 0) diff = 0;
+
+  PLANS.forEach(p=>{
+    const priceEl = document.getElementById("price-" + p.id);
+    if(priceEl) priceEl.textContent = formatRupiah(activePrice(p));
+
+    const noteEl = document.getElementById("afternote-" + p.id);
+    if(noteEl){
+      noteEl.textContent = diff > 0
+        ? (i18n.afterNote[preferredLanguage] + formatRupiah(p.priceAfter))
+        : "";
+    }
+  });
+}
+
+function tickCountdown(){
+  const now = Date.now();
+  let diff = PRICE_DOUBLE_DEADLINE.getTime() - now;
+  if(diff < 0) diff = 0;
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  const elDays = document.getElementById("cdDays");
+  const elHours = document.getElementById("cdHours");
+  const elMinutes = document.getElementById("cdMinutes");
+  const elSeconds = document.getElementById("cdSeconds");
+
+  if(elDays) elDays.textContent = days;
+  if(elHours) elHours.textContent = pad(hours);
+  if(elMinutes) elMinutes.textContent = pad(minutes);
+  if(elSeconds) elSeconds.textContent = pad(seconds);
+
+  updateCountdownDependentText();
+}
+
 setLang(preferredLanguage);
+
+tickCountdown();
+setInterval(tickCountdown, 1000);
 
 /* =====================
    Background: faint ledger grid + one slow-turning seal ring
